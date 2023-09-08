@@ -1,0 +1,26 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fast-disks
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+# Supported policies: Delete, Retain
+reclaimPolicy: Retain
+---
+# Configuration for our Local Persistent Volume CSI Driver
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: local-volume-provisioner-config
+  namespace: kube-system
+
+data:
+  # Adds the node's hostname as a label to each PV created
+  nodeLabelsForPV: |
+    - kubernetes.io/hostname
+
+  storageClassMap: |
+    fast-disks:
+      # Path on the host where local volumes of this storage class
+      # are mounted under.
+      hostDir: /mnt/fast-disks
